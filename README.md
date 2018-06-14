@@ -21,7 +21,7 @@ Docker container includes:
 * redis
 
 ## Configuration
-Default configuration:
+Default all configuration:
 * `username: laradock`
 * `password: password`
 
@@ -34,4 +34,95 @@ Default configuration:
 * cAdvisor (containers metrics collector)
 * Caddy (reverse proxy and basic auth provider for prometheus and alertmanager)
 
+## Concepts
+***Prometheus Architecture***
+
+![Prometheus][]
+
+***Docker Host Dashboard***
+
+![Host][]
+
+The Docker Host Dashboard shows key metrics for monitoring the resource usage of your server:
+
+* Server uptime, CPU idle percent, number of CPU cores, available memory, swap and storage
+* System load average graph, running and blocked by IO processes graph, interrupts graph
+* CPU usage graph by mode (guest, idle, iowait, irq, nice, softirq, steal, system, user)
+* Memory usage graph by distribution (used, free, buffers, cached)
+* IO usage graph (read Bps, read Bps and IO time)
+* Network usage graph by device (inbound Bps, Outbound Bps)
+* Swap usage and activity graphs
+
+***Docker Containers Dashboard***
+
+![Containers][]
+
+The Docker Containers Dashboard shows key metrics for monitoring running containers:
+
+* Total containers CPU load, memory and storage usage
+* Running containers graph, system load graph, IO usage graph
+* Container CPU usage graph
+* Container memory usage graph
+* Container cached memory usage graph
+* Container network inbound usage graph
+* Container network outbound usage graph
+
+Note that this dashboard doesn't show the containers that are part of the monitoring stack.
+
+***Monitor Services Dashboard***
+
+![Monitor Services][]
+
+The Monitor Services Dashboard shows key metrics for monitoring the containers that make up the monitoring stack:
+
+* Prometheus container uptime, monitoring stack total memory usage, Prometheus local storage memory chunks and series
+* Container CPU usage graph
+* Container memory usage graph
+* Prometheus chunks to persist and persistence urgency graphs
+* Prometheus chunks ops and checkpoint duration graphs
+* Prometheus samples ingested rate, target scrapes and scrape duration graphs
+* Prometheus HTTP requests graph
+* Prometheus alerts graph
+
+***Setup Alerting***
+
+![Slack Notifications][]
+
+The notification receivers can be configured in [alertmanager/config.yml][] file.
+
+To receive alerts via Slack you need to make a custom integration by choose ***incoming web hooks*** in your Slack team app page.
+You can find more details on setting up Slack integration [here][].
+
+Copy the Slack Webhook URL into the ***api_url*** field and specify a Slack ***channel***.
+
+```yaml
+route:
+    receiver: 'slack'
+
+receivers:
+    - name: 'slack'
+      slack_configs:
+          - send_resolved: true
+            text: "{{ .CommonAnnotations.description }}"
+            username: 'Prometheus'
+            channel: '#<channel>'
+            api_url: 'https://hooks.slack.com/services/<webhook-id>'
+```
+
+## How To Run?
+* Clone this repository
+  ```
+  git clone git@github.com:nfndp/nfndp-docker.git
+  ```
+* Open your terminal then go to `nfndp-docker` folder
+* Type: `./run.sh` or `/bin/sh ./run.sh`
+
+
 [laradock]:https://github.com/laradock/laradock
+[Prometheus]:https://camo.githubusercontent.com/7cc17b981938e40974542fbfa9c34172fd92eccd/68747470733a2f2f63646e2e7261776769742e636f6d2f70726f6d6574686575732f70726f6d6574686575732f633334323537643036396336333036383564613335626365663038343633326666643564363230392f646f63756d656e746174696f6e2f696d616765732f6172636869746563747572652e737667
+[Host]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/docs/grafana_docker_host.png
+[Containers]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/docs/grafana_docker_containers.png
+[Monitor Services]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/docs/grafana_prometheus.png
+[Slack Notifications]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/docs/slack_notifications.png
+[alertmanager/config.yml]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/config/alertmanager/config.yml
+[here]:http://www.robustperception.io/using-slack-with-the-alertmanager/
