@@ -1,5 +1,6 @@
 .env
 .idea
+cache/**
 data/**
 log/**
 session/**
