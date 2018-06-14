@@ -117,6 +117,32 @@ receivers:
 * Open your terminal then go to `nfndp-docker` folder
 * Type: `./run.sh` or `/bin/sh ./run.sh`
 
+## Running Container
+
+***Docker Portainer***
+
+* Create credential access:
+```
+username: laradock
+password: password
+```
+* Select local containers
+
+![Portainer][]
+
+***Running in browser***
+* Grafana: [localhost:8120](http://localhost:8120)
+* NodeExporter: [localhost:9306](http://localhost:9306)
+* Prometheus: [localhost:9307](http://localhost:9307)
+* Caddy:
+  - [localhost:9301](http://localhost:9301)
+  - [localhost:9302](http://localhost:9302)
+  - [localhost:9303](http://localhost:9303)
+  - [localhost:9304](http://localhost:9304)
+* cAdvisor: [localhost:9305](http://localhost:9305)
+* Redis: [localhost:8152](http://localhost:8152)
+* PostgreSQL: [localhost:8146](http://localhost:8146)
+* Pushgateway: [localhost:9308](http://localhost:9308)
 
 [laradock]:https://github.com/laradock/laradock
 [Prometheus]:https://camo.githubusercontent.com/7cc17b981938e40974542fbfa9c34172fd92eccd/68747470733a2f2f63646e2e7261776769742e636f6d2f70726f6d6574686575732f70726f6d6574686575732f633334323537643036396336333036383564613335626365663038343633326666643564363230392f646f63756d656e746174696f6e2f696d616765732f6172636869746563747572652e737667
@@ -126,3 +152,4 @@ receivers:
 [Slack Notifications]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/docs/slack_notifications.png
 [alertmanager/config.yml]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/config/alertmanager/config.yml
 [here]:http://www.robustperception.io/using-slack-with-the-alertmanager/
+[Portainer]:https://raw.githubusercontent.com/nfndp/nfndp-docker/master/docs/portainer.png
