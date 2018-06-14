@@ -1,0 +1,18 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# REDIS
+#================================================================================================
+  redis:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "8120:6379"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./cache/redis:/data                                # volume for data
+    environment:
+      - REDIS_VERSION=3.2

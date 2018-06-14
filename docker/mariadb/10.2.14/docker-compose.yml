@@ -1,0 +1,24 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# MARIADB
+#================================================================================================
+  mariadb:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "8108:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mariadb:/var/lib/mysql                                # volume for data
+      - ./log/mariadb:/var/log/mysql                                 # log mariadb
+    environment:
+      - MARIADB_VERSION=10.2.14
+      - MYSQL_ROOT_PASSWORD=password                                 # root password
+      - MYSQL_ROOT_HOST=mariadb                                      # grant user hostmask (optional)
+      - MYSQL_DATABASE=laradock_mariadb                              # create database (optional)
+      - MYSQL_USER=laradock                                          # grant user name (optional)
+      - MYSQL_PASSWORD=password                                      # grant user password (optional)

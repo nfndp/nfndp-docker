@@ -1,0 +1,94 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# MARIADB
+#================================================================================================
+  mariadb:
+    restart: always
+    image: dockerframework/mariadb
+    ports:
+      - "${MARIADB_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_MARIADB}:/var/lib/mysql                               # volume for data
+      - ${LOG_MARIADB}:/var/log/mysql                                # log mariadb
+    environment:
+      - MARIADB_VERSION=${MARIADB_VERSION}
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}                 # root password
+      - MYSQL_ROOT_HOST=${MARIADB_ROOT_HOST}                         # grant user hostmask (optional)
+      - MYSQL_DATABASE=${MARIADB_DATABASE}                           # create database (optional)
+      - MYSQL_USER=${MARIADB_USER}                                   # grant user name (optional)
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}                           # grant user password (optional)
+
+#================================================================================================
+# MYSQL
+#================================================================================================
+  mysql:
+    restart: always
+    image: dockerframework/mysql
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATABASE_MYSQL}:/var/lib/mysql                      # volume for data
+      - ${LOG_MYSQL}:/var/log/mysql                           # log mysql
+      - ${CONFIG_MYSQL}:/etc/my.cnf                           # my.cnf mysql
+      - ${CONFIG_MYSQL_DOCKER}:/etc/mysql/conf.d/docker.cnf   # docker.cnf mysql
+    environment:
+      - MYSQL_VERSION=${MYSQL_VERSION}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}         # root password
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}                 # grant user hostmask (optional)
+      - MYSQL_DATABASE=${MYSQL_DATABASE}                   # create database (optional)
+      - MYSQL_USER=${MYSQL_USER}                           # grant user name (optional)
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}                   # grant user password (optional)
+
+#================================================================================================
+# PERCONA
+#================================================================================================
+  percona:
+    restart: always
+    image: dockerframework/percona
+    ports:
+      - "${PERCONA_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATABASE_PERCONA}:/var/lib/mysql                    # volume for data
+      - ${LOG_PERCONA}:/var/log/mysql                         # log percona
+      - ${CONFIG_MYSQL}:/etc/my.cnf                           # my.cnf mysql
+      - ${CONFIG_MYSQL_DOCKER}:/etc/mysql/conf.d/docker.cnf   # docker.cnf mysql
+    environment:
+      - MYSQL_VERSION=${PERCONA_VERSION}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}         # root password
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}                 # grant user hostmask (optional)
+      - MYSQL_DATABASE=${MYSQL_DATABASE}                   # create database (optional)
+      - MYSQL_USER=${MYSQL_USER}                           # grant user name (optional)
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}                   # grant user password (optional)
+
+#================================================================================================
+# PHPMYADMIN
+#================================================================================================
+  phpmyadmin:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "${PHPMYADMIN_PORT}:80"
+    depends_on:
+      - "${PMA_DB_ENGINE}"                                           # mysql, mariadb, percona
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SESSION_PHPMYADMIN}:/sessions                              # volume for sessions
+      - ${CONFIG_PHPMYADMIN}:/www/config.inc.php                     # volume for config phpmyadmin
+    environment:
+      - ALPINE_VERSION=${ALPINE_VERSION}
+      - PHP_VERSION=${PHP_VERSION}
+      - PHPMYADMIN_VERSION=${PHPMYADMIN_VERSION}
+      - PMA_ARBITRARY=${PMA_ARBITRARY}
+      - PMA_DB_ENGINE=${PMA_DB_ENGINE}
+      - PMA_HOST=${PMA_DB_ENGINE}
+      - MYSQL_HOST=${PMA_DB_ENGINE}
+      - MYSQL_USER=${PMA_USER}
+      - MYSQL_PASSWORD=${PMA_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${PMA_ROOT_PASSWORD}

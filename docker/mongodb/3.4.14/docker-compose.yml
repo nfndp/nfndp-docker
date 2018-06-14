@@ -1,0 +1,28 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# MONGODB
+#================================================================================================
+  mongodb:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "8112:27017"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/mongodb/mongodb.conf:/etc/mongodb.conf
+      - ./data/mongodb/db:/data/db                         # volume for data
+      - ./data/mongodb/configdb:/data/configdb             # volume for config
+      - ./data/mongodb:/var/lib/mongodb
+      - ./log/mongodb:/var/log/mongodb/mongod.log          # log mongodb
+    environment:
+      - MONGO_VERSION=3.4.14
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_HOST=mongodb
+      - MONGO_DATABASE=laradock_mongodb
+      - MONGO_USER=laradock
+      - MONGO_PASSWORD=password

@@ -1,0 +1,92 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# MARIADB
+#================================================================================================
+  mariadb:
+    restart: always
+    image: dockerframework/mariadb
+    ports:
+      - "8108:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mariadb:/var/lib/mysql                                # volume for data
+      - ./log/mariadb:/var/log/mysql                                 # log mariadb
+    environment:
+      - MARIADB_VERSION=10.3.5
+      - MYSQL_ROOT_PASSWORD=password                                 # root password
+      - MYSQL_ROOT_HOST=mariadb                                      # grant user hostmask (optional)
+      - MYSQL_DATABASE=laradock_mariadb                              # create database (optional)
+      - MYSQL_USER=laradock                                          # grant user name (optional)
+      - MYSQL_PASSWORD=password                                      # grant user password (optional)
+
+#================================================================================================
+# MYSQL
+#================================================================================================
+  mysql:
+    restart: always
+    image: dockerframework/mysql
+    ports:
+      - "8109:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mysql:/var/lib/mysql                                  # volume for data
+      - ./log/mysql:/var/log/mysql                                   # log mysql
+    environment:
+      - MYSQL_VERSION=8.0.11
+      - MYSQL_ROOT_PASSWORD=password                                 # root password
+      - MYSQL_ROOT_HOST=mysql                                        # grant user hostmask (optional)
+      - MYSQL_DATABASE=laradock_mysql                                # create database (optional)
+      - MYSQL_USER=laradock                                          # grant user name (optional)
+      - MYSQL_PASSWORD=password                                      # grant user password (optional)
+
+#================================================================================================
+# PERCONA
+#================================================================================================
+  percona:
+    restart: always
+    image: dockerframework/percona
+    ports:
+      - "8110:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/percona:/var/lib/mysql                                # volume for data
+      - ./log/percona:/var/log/mysql                                 # log percona
+    environment:
+      - MYSQL_VERSION=5.7.21
+      - MYSQL_ROOT_PASSWORD=password                                 # root password
+      - MYSQL_ROOT_HOST=percona                                      # grant user hostmask (optional)
+      - MYSQL_DATABASE=laradock_percona                              # create database (optional)
+      - MYSQL_USER=laradock                                          # grant user name (optional)
+      - MYSQL_PASSWORD=password                                      # grant user password (optional)
+
+#================================================================================================
+# PHPMYADMIN
+#================================================================================================
+  phpmyadmin:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "8117:80"
+    depends_on:
+      - mariadb
+      - mysql
+      - percona
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./session/phpmyadmin:/sessions                               # volume for sessions
+      - ./config/phpmyadmin/config.inc.php:/www/config.inc.php       # volume for config phpmyadmin
+    environment:
+      - ALPINE_VERSION=3.7
+      - PHP_VERSION=7.2.4
+      - PHPMYADMIN_VERSION=4.8.0
+      - PMA_ARBITRARY=1
+      - PMA_DB_ENGINE=mariadb
+      - PMA_HOST=mariadb
+      - MYSQL_HOST=mariadb
+      - MYSQL_USER=laradock
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password

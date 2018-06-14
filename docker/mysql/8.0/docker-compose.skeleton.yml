@@ -1,0 +1,26 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# MYSQL
+#================================================================================================
+  mysql:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATABASE_MYSQL}:/var/lib/mysql                      # volume for data
+      - ${LOG_MYSQL}:/var/log/mysql                           # log mysql
+      - ${CONFIG_MYSQL}:/etc/my.cnf                           # my.cnf mysql
+      - ${CONFIG_MYSQL_DOCKER}:/etc/mysql/conf.d/docker.cnf   # docker.cnf mysql
+    environment:
+      - MYSQL_VERSION=${MYSQL_VERSION}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}         # root password
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}                 # grant user hostmask (optional)
+      - MYSQL_DATABASE=${MYSQL_DATABASE}                   # create database (optional)
+      - MYSQL_USER=${MYSQL_USER}                           # grant user name (optional)
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}                   # grant user password (optional)

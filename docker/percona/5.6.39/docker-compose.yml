@@ -1,0 +1,26 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# PERCONA
+#================================================================================================
+  percona:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "8110:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/mysql:/var/lib/mysql                                       # volume for data
+      - ./log/mysql:/var/log/mysql                                        # log mysql
+      - ./config/mysql/my.cnf:/etc/my.cnf                                 # my.cnf mysql
+      - ./config/mysql/conf.d/laradock.cnf:/etc/mysql/conf.d/docker.cnf   # docker.cnf mysql
+    environment:
+      - MYSQL_VERSION=5.6.39
+      - MYSQL_ROOT_PASSWORD=password                       # root password
+      - MYSQL_ROOT_HOST=mysql                              # grant user hostmask (optional)
+      - MYSQL_DATABASE=laradock_percona                    # create database (optional)
+      - MYSQL_USER=laradock                                # grant user name (optional)
+      - MYSQL_PASSWORD=password                            # grant user password (optional)

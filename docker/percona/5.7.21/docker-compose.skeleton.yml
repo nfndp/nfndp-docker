@@ -1,0 +1,26 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# PERCONA
+#================================================================================================
+  percona:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "${PERCONA_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATABASE_PERCONA}:/var/lib/mysql                    # volume for data
+      - ${LOG_PERCONA}:/var/log/mysql                         # log percona
+      - ${CONFIG_MYSQL}:/etc/my.cnf                           # my.cnf mysql
+      - ${CONFIG_MYSQL_DOCKER}:/etc/mysql/conf.d/docker.cnf   # docker.cnf mysql
+    environment:
+      - MYSQL_VERSION=${PERCONA_VERSION}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}         # root password
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}                 # grant user hostmask (optional)
+      - MYSQL_DATABASE=${MYSQL_DATABASE}                   # create database (optional)
+      - MYSQL_USER=${MYSQL_USER}                           # grant user name (optional)
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}                   # grant user password (optional)

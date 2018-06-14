@@ -1,0 +1,18 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# REDIS
+#================================================================================================
+  redis:
+    restart: always
+    build:
+      context: ./docker/redis/${REDIS_VERSION}
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CACHE_MEMCACHED}:/data                                     # volume for data
+    environment:
+      - REDIS_VERSION=${REDIS_VERSION}
