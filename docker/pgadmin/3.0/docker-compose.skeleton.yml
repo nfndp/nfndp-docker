@@ -34,6 +34,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${SESSION_PGADMIN}:/sessions                                 # volume for sessions
+      - ${DATA_PGADMIN}:/var/lib/pgadmin/storage
     environment:
       - PGADMIN_VERSION=${PGADMIN_VERSION}
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
