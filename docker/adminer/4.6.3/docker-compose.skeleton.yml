@@ -1,0 +1,19 @@
+version: '3.2'
+
+services:
+
+#================================================================================================
+# ADMINER
+#================================================================================================
+  adminer:
+    restart: always
+    build:
+      context: .
+    ports:
+      - "${ADMINER_PORT}:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SESSION_ADMINER}:/sessions                       # volume for sessions
+    environment:
+      - ADMINER_VERSION=${ADMINER_VERSION}
+      - INSTALL_MSSQL=${INSTALL_MSSQL}
