@@ -64,10 +64,10 @@ FLUSH PRIVILEGES;
 
 ```
 USE mysql;
-UPDATE user set host=’[hostname]’ where user=’[username]’ and host=’localhost’;
+UPDATE user set host='[hostname]' where user='[username]' and host='localhost';
 FLUSH PRIVILEGES;
 -----
-UPDATE user set host=’%’ where user=’root’ and host=’localhost’;
+UPDATE user set host='%' where user='root' and host='localhost';
 FLUSH PRIVILEGES;
 ```
 
