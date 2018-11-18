@@ -1,13 +1,16 @@
-version: '3.2'
+version: '2'   # IT MUST version 2 for support "ip_range"
 
 #================================================================================================
 # NETWORK SETUP
 #================================================================================================
 networks:
-  backend:
-    driver: ${NETWORKS_DRIVER:-bridge}
-  frontend:
-    driver: ${NETWORKS_DRIVER:-bridge}
+  nfndp-net:
+    driver: ${NETWORKS_DRIVER}
+    ipam:
+      config:
+        - subnet: 172.215.0.0/16      # 65534 Hosts / Net
+          ip_range: 172.215.5.0/24
+          gateway: 172.215.5.254
 
 #================================================================================================
 # VOLUME SETUP
@@ -56,7 +59,9 @@ services:
       - CONSUL_VERSION=${CONSUL_VERSION}
       - CONSULTEMPLATE_VERSION=${CONSULTEMPLATE_VERSION}
       - CONSUL_OPTIONS=-server -bootstrap-expect 1 -client 0.0.0.0 -ui    # minimal server options
-
+    networks:
+      nfndp-net:
+        ipv4_address: 172.215.0.3
 #================================================================================================
 # ADMINER
 #================================================================================================
@@ -74,8 +79,8 @@ services:
       - ADMINER_VERSION=${ADMINER_VERSION}
       - INSTALL_MSSQL=${INSTALL_MSSQL}
     networks:
-      - backend
-      - frontend
+      nfndp-net:
+        ipv4_address: 172.215.0.4
 
 #================================================================================================
 # ALERTMANAGER
@@ -92,7 +97,8 @@ services:
     ports:
       - "${ALERTMANAGER_PORT:-8300}:9093"
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.5
 
 #================================================================================================
 # CADDY
@@ -112,7 +118,8 @@ services:
       - ADMIN_USER=laradock
       - ADMIN_PASSWORD=password
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.6
 
 #================================================================================================
 # CADVISOR
@@ -130,7 +137,8 @@ services:
     ports:
       - "${CADVISOR_PORT:-8305}:3000"
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.7
 
 #================================================================================================
 # GRAFANA
@@ -156,7 +164,8 @@ services:
       #- GF_AWS_default_SECRET_ACCESS_KEY=${GF_AWS_default_SECRET_ACCESS_KEY}
       #- GF_AWS_default_REGION=${GF_AWS_default_REGION}
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.8
 
 #================================================================================================
 # MARIADB
@@ -180,7 +189,8 @@ services:
       - MYSQL_USER=${MARIADB_USER}                                   # grant user name (optional)
       - MYSQL_PASSWORD=${MARIADB_PASSWORD}                           # grant user password (optional)
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.9
 
 #================================================================================================
 # MONGODB
@@ -208,7 +218,8 @@ services:
       - MONGO_USER=${MONGO_USER}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.10
 
 #================================================================================================
 # MYSQL
@@ -234,7 +245,8 @@ services:
       - MYSQL_USER=${MYSQL_USER}                                     # grant user name (optional)
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}                             # grant user password (optional)
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.11
 
 #================================================================================================
 # NODEEXPORTER
@@ -256,7 +268,8 @@ services:
     ports:
       - "${NODEEXPORTER_PORT:-8306}:9100"
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.12
 
 #================================================================================================
 # PERCONA
@@ -282,7 +295,8 @@ services:
       - MYSQL_USER=${PERCONA_USER}                                   # grant user name (optional)
       - MYSQL_PASSWORD=${PERCONA_PASSWORD}                           # grant user password (optional)
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.13
 
 #================================================================================================
 # PGADMIN
@@ -305,8 +319,8 @@ services:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     networks:
-      - backend
-      - frontend
+      nfndp-net:
+        ipv4_address: 172.215.0.14
 
 #================================================================================================
 # PHPMYADMIN
@@ -336,8 +350,8 @@ services:
       - MYSQL_PASSWORD=${PMA_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${PMA_ROOT_PASSWORD}
     networks:
-      - backend
-      - frontend
+      nfndp-net:
+        ipv4_address: 172.215.0.15
 
 #================================================================================================
 # PORTAINER
@@ -356,8 +370,8 @@ services:
     environment:
       - PORTAINER_VERSION=${PORTAINER_VERSION}
     networks:
-      - backend
-      - frontend
+      nfndp-net:
+        ipv4_address: 172.215.0.16
 
 #================================================================================================
 # POSTGRESQL
@@ -379,7 +393,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}                               # grant user name (optional)
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}                       # grant user password (optional)
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.17
 
 #================================================================================================
 # PROMETHEUS
@@ -404,7 +419,8 @@ services:
     ports:
       - "${PROMETHEUS_PORT:-8307}:9090"
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.18
 
 #================================================================================================
 # PUSHGATEWAY
@@ -416,7 +432,8 @@ services:
     ports:
       - "${PUSHGATEWAY_PORT:-8308}:9091"
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.19
 
 #================================================================================================
 # REDIS
@@ -434,4 +451,5 @@ services:
     environment:
       - REDIS_VERSION=${REDIS_VERSION}
     networks:
-      - backend
+      nfndp-net:
+        ipv4_address: 172.215.0.20
