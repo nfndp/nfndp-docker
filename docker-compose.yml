@@ -17,31 +17,31 @@ networks:
 #================================================================================================
 volumes:
   adminer:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   consul:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   grafana:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   mariadb:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   mongodb:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   mysql:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   percona:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   pgadmin:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   phpmyadmin:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   portainer:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   postgresql:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   prometheus:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
   redis:
-    driver: ${VOLUMES_DRIVER:-local}
+    driver: ${VOLUMES_DRIVER}
 
 services:
 #================================================================================================
@@ -95,7 +95,7 @@ services:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
     ports:
-      - "${ALERTMANAGER_PORT:-8300}:9093"
+      - "${ALERTMANAGER_PORT}:9093"
     networks:
       nfndp-net:
         ipv4_address: 172.215.0.5
@@ -108,10 +108,10 @@ services:
     image: stefanprodan/caddy
     container_name: nfndp_caddy
     ports:
-      - "${CADDY_PORT:-8301}:3000"
-      - "${CADDY_PORT:-8302}:9090"
-      - "${CADDY_PORT:-8303}:9091"
-      - "${CADDY_PORT:-8304}:9093"
+      - "${CADDY_PORT1}:3000"
+      - "${CADDY_PORT2}:9090"
+      - "${CADDY_PORT3}:9091"
+      - "${CADDY_PORT4}:9093"
     volumes:
       - ./config/caddy/:/etc/caddy/
     environment:
@@ -135,7 +135,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
     ports:
-      - "${CADVISOR_PORT:-8305}:3000"
+      - "${CADVISOR_PORT}:3000"
     networks:
       nfndp-net:
         ipv4_address: 172.215.0.7
@@ -156,8 +156,8 @@ services:
     environment:
       - GRAFANA_VERSION=${GRAFANA_VERSION}
       #- GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
-      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-laradock}
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-password}
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
       - GF_INSTALL_PLUGINS=${GF_INSTALL_PLUGINS}
       #- GF_AWS_PROFILES=${GF_AWS_PROFILES}
       #- GF_AWS_default_ACCESS_KEY_ID=${GF_AWS_default_ACCESS_KEY_ID}
@@ -266,7 +266,7 @@ services:
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
     restart: unless-stopped
     ports:
-      - "${NODEEXPORTER_PORT:-8306}:9100"
+      - "${NODEEXPORTER_PORT}:9100"
     networks:
       nfndp-net:
         ipv4_address: 172.215.0.12
@@ -403,7 +403,7 @@ services:
     restart: unless-stopped
     #image: prom/prometheus:v2.5.0
     build:
-      context: ./services/prometheus/${PROMETHEUS_VERSION:-2.5.0}
+      context: ./services/prometheus/${PROMETHEUS_VERSION}
     container_name: nfndp_prometheus
     volumes:
       - ./config/prometheus/alert.rules:/etc/prometheus/alert.rules
@@ -417,7 +417,7 @@ services:
       - '--storage.tsdb.retention=200h'
       - '--web.enable-lifecycle'
     ports:
-      - "${PROMETHEUS_PORT:-8307}:9090"
+      - "${PROMETHEUS_PORT}:9090"
     networks:
       nfndp-net:
         ipv4_address: 172.215.0.18
@@ -430,7 +430,7 @@ services:
     image: prom/pushgateway
     container_name: nfndp_pushgateway
     ports:
-      - "${PUSHGATEWAY_PORT:-8308}:9091"
+      - "${PUSHGATEWAY_PORT}:9091"
     networks:
       nfndp-net:
         ipv4_address: 172.215.0.19
