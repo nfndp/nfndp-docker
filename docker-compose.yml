@@ -63,7 +63,7 @@ services:
   adminer:
     restart: unless-stopped
     build:
-      context: ./docker/adminer/${ADMINER_VERSION}
+      context: ./services/adminer/${ADMINER_VERSION}
     container_name: nfndp_adminer
     ports:
       - "${ADMINER_PORT}:8080"
@@ -90,7 +90,7 @@ services:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
     ports:
-      - "${ALERTMANAGER_PORT:-9300}:9093"
+      - "${ALERTMANAGER_PORT:-8300}:9093"
     networks:
       - backend
 
@@ -102,10 +102,10 @@ services:
     image: stefanprodan/caddy
     container_name: nfndp_caddy
     ports:
-      - "${CADDY_PORT:-9301}:3000"
-      - "${CADDY_PORT:-9302}:9090"
-      - "${CADDY_PORT:-9303}:9091"
-      - "${CADDY_PORT:-9304}:9093"
+      - "${CADDY_PORT:-8301}:3000"
+      - "${CADDY_PORT:-8302}:9090"
+      - "${CADDY_PORT:-8303}:9091"
+      - "${CADDY_PORT:-8304}:9093"
     volumes:
       - ./config/caddy/:/etc/caddy/
     environment:
@@ -128,7 +128,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
     ports:
-      - "${CADVISOR_PORT:-9305}:3000"
+      - "${CADVISOR_PORT:-8305}:3000"
     networks:
       - backend
 
@@ -138,7 +138,7 @@ services:
   grafana:
     restart: unless-stopped
     build:
-      context: ./docker/grafana/${GRAFANA_VERSION}
+      context: ./services/grafana/${GRAFANA_VERSION}
     container_name: nfndp_grafana
     ports:
       - "${GRAFANA_PORT}:3000"
@@ -164,7 +164,7 @@ services:
   mariadb:
     restart: unless-stopped
     build:
-      context: ./docker/mariadb/${MARIADB_VERSION}
+      context: ./services/mariadb/${MARIADB_VERSION}
     container_name: nfndp_mariadb
     ports:
       - "${MARIADB_PORT}:3306"
@@ -188,7 +188,7 @@ services:
   mongodb:
     restart: unless-stopped
     build:
-      context: ./docker/mongodb/${MONGO_VERSION}
+      context: ./services/mongodb/${MONGO_VERSION}
     container_name: nfndp_mongodb
     ports:
       - "${MONGO_PORT}:27017"
@@ -216,7 +216,7 @@ services:
   mysql:
     restart: unless-stopped
     build:
-      context: ./docker/mysql/${MYSQL_VERSION}
+      context: ./services/mysql/${MYSQL_VERSION}
     container_name: nfndp_mysql
     ports:
       - "${MYSQL_PORT}:3306"
@@ -254,7 +254,7 @@ services:
       - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
     restart: unless-stopped
     ports:
-      - "${NODEEXPORTER_PORT:-9306}:9100"
+      - "${NODEEXPORTER_PORT:-8306}:9100"
     networks:
       - backend
 
@@ -264,7 +264,7 @@ services:
   percona:
     restart: unless-stopped
     build:
-      context: ./docker/percona/${PERCONA_VERSION}
+      context: ./services/percona/${PERCONA_VERSION}
     container_name: nfndp_percona
     ports:
       - "${PERCONA_PORT}:3306"
@@ -290,7 +290,7 @@ services:
   pgadmin:
     restart: unless-stopped
     build:
-      context: ./docker/pgadmin/${PGADMIN_VERSION}
+      context: ./services/pgadmin/${PGADMIN_VERSION}
     container_name: nfndp_pgadmin
     ports:
       - "${PGADMIN_PORT}:80"
@@ -314,7 +314,7 @@ services:
   phpmyadmin:
     restart: unless-stopped
     build:
-      context: ./docker/phpmyadmin/${PHPMYADMIN_VERSION}
+      context: ./services/phpmyadmin/${PHPMYADMIN_VERSION}
     container_name: nfndp_phpmyadmin
     ports:
       - "${PHPMYADMIN_PORT}:80"
@@ -345,7 +345,7 @@ services:
   portainer:
     restart: unless-stopped
     build:
-      context: ./docker/portainer/${PORTAINER_VERSION}
+      context: ./services/portainer/${PORTAINER_VERSION}
     container_name: nfndp_portainer
     ports:
       - "${PORTAINER_PORT}:9000"
@@ -365,7 +365,7 @@ services:
   postgresql:
     restart: unless-stopped
     build:
-      context: ./docker/postgresql/${POSTGRES_VERSION}
+      context: ./services/postgresql/${POSTGRES_VERSION}
     container_name: nfndp_postgresql
     ports:
       - "${POSTGRES_PORT}:5432"
@@ -386,9 +386,9 @@ services:
 #================================================================================================
   prometheus:
     restart: unless-stopped
-    #image: prom/prometheus:v2.3.0
+    #image: prom/prometheus:v2.5.0
     build:
-      context: ./docker/prometheus/${PROMETHEUS_VERSION:-2.3.0}
+      context: ./services/prometheus/${PROMETHEUS_VERSION:-2.5.0}
     container_name: nfndp_prometheus
     volumes:
       - ./config/prometheus/alert.rules:/etc/prometheus/alert.rules
@@ -402,7 +402,7 @@ services:
       - '--storage.tsdb.retention=200h'
       - '--web.enable-lifecycle'
     ports:
-      - "${PROMETHEUS_PORT:-9307}:9090"
+      - "${PROMETHEUS_PORT:-8307}:9090"
     networks:
       - backend
 
@@ -414,7 +414,7 @@ services:
     image: prom/pushgateway
     container_name: nfndp_pushgateway
     ports:
-      - "${PUSHGATEWAY_PORT:-9308}:9091"
+      - "${PUSHGATEWAY_PORT:-8308}:9091"
     networks:
       - backend
 
@@ -424,7 +424,7 @@ services:
   redis:
     restart: unless-stopped
     build:
-      context: ./docker/redis/${REDIS_VERSION}
+      context: ./services/redis/${REDIS_VERSION}
     container_name: nfndp_redis
     ports:
       - "${REDIS_PORT}:6379"
