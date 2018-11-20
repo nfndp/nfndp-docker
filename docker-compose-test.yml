@@ -1,0 +1,433 @@
+version: '2'   # IT MUST version 2 for support "ip_range"
+
+#================================================================================================
+# NETWORK SETUP
+#================================================================================================
+networks:
+  nfndp-net:
+    driver: ${NETWORKS_DRIVER}
+
+#================================================================================================
+# VOLUME SETUP
+#================================================================================================
+volumes:
+  adminer:
+    driver: ${VOLUMES_DRIVER}
+  consul:
+    driver: ${VOLUMES_DRIVER}
+  grafana:
+    driver: ${VOLUMES_DRIVER}
+  mariadb:
+    driver: ${VOLUMES_DRIVER}
+  mongodb:
+    driver: ${VOLUMES_DRIVER}
+  mysql:
+    driver: ${VOLUMES_DRIVER}
+  percona:
+    driver: ${VOLUMES_DRIVER}
+  pgadmin:
+    driver: ${VOLUMES_DRIVER}
+  phpmyadmin:
+    driver: ${VOLUMES_DRIVER}
+  portainer:
+    driver: ${VOLUMES_DRIVER}
+  postgresql:
+    driver: ${VOLUMES_DRIVER}
+  prometheus:
+    driver: ${VOLUMES_DRIVER}
+  redis:
+    driver: ${VOLUMES_DRIVER}
+
+services:
+#================================================================================================
+# CORE-CONSUL
+#================================================================================================
+  consul:
+    restart: unless-stopped
+    image: dockerframework/core-consul
+    container_name: nfndp_consul
+    ports:
+      - "8500:8500"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - CONSUL_VERSION=${CONSUL_VERSION}
+      - CONSULTEMPLATE_VERSION=${CONSULTEMPLATE_VERSION}
+      - CONSUL_OPTIONS=-server -bootstrap-expect 1 -client 0.0.0.0 -ui    # minimal server options
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# ADMINER
+#================================================================================================
+  adminer:
+    restart: unless-stopped
+    build:
+      context: ./services/adminer/${ADMINER_VERSION}
+    container_name: nfndp_adminer
+    ports:
+      - "${ADMINER_PORT}:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SESSION_ADMINER}:/sessions                                 # volume for sessions
+    environment:
+      - ADMINER_VERSION=${ADMINER_VERSION}
+      - INSTALL_MSSQL=${INSTALL_MSSQL}
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# ALERTMANAGER
+#================================================================================================
+  alertmanager:
+    restart: unless-stopped
+    image: prom/alertmanager:v0.14.0
+    container_name: nfndp_alertmanager
+    volumes:
+      - ./config/alertmanager/:/etc/alertmanager/
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    ports:
+      - "${ALERTMANAGER_PORT}:9093"
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# CADDY
+#================================================================================================
+  caddy:
+    restart: unless-stopped
+    image: stefanprodan/caddy
+    container_name: nfndp_caddy
+    ports:
+      - "${CADDY_PORT1}:3000"
+      - "${CADDY_PORT2}:9090"
+      - "${CADDY_PORT3}:9091"
+      - "${CADDY_PORT4}:9093"
+    volumes:
+      - ./config/caddy/:/etc/caddy/
+    environment:
+      - ADMIN_USER=laradock
+      - ADMIN_PASSWORD=password
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# CADVISOR
+#================================================================================================
+  cadvisor:
+    restart: unless-stopped
+    image: google/cadvisor:v0.28.3
+    container_name: nfndp_cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
+    ports:
+      - "${CADVISOR_PORT}:3000"
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# GRAFANA
+#================================================================================================
+  grafana:
+    restart: unless-stopped
+    build:
+      context: ./services/grafana/${GRAFANA_VERSION}
+    container_name: nfndp_grafana
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_GRAFANA}:/var/lib/grafana                             # volume for data
+    environment:
+      - GRAFANA_VERSION=${GRAFANA_VERSION}
+      #- GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_INSTALL_PLUGINS=${GF_INSTALL_PLUGINS}
+      #- GF_AWS_PROFILES=${GF_AWS_PROFILES}
+      #- GF_AWS_default_ACCESS_KEY_ID=${GF_AWS_default_ACCESS_KEY_ID}
+      #- GF_AWS_default_SECRET_ACCESS_KEY=${GF_AWS_default_SECRET_ACCESS_KEY}
+      #- GF_AWS_default_REGION=${GF_AWS_default_REGION}
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# MARIADB
+#================================================================================================
+  mariadb:
+    restart: unless-stopped
+    build:
+      context: ./services/mariadb/${MARIADB_VERSION}
+    container_name: nfndp_mariadb
+    ports:
+      - "${MARIADB_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_MARIADB}:/var/lib/mysql                               # volume for data
+      - ${LOG_MARIADB}:/var/log/mysql                                # log mariadb
+    environment:
+      - MARIADB_VERSION=${MARIADB_VERSION}
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}                 # root password
+      - MYSQL_ROOT_HOST=${MARIADB_ROOT_HOST}                         # grant user hostmask (optional)
+      - MYSQL_DATABASE=${MARIADB_DATABASE}                           # create database (optional)
+      - MYSQL_USER=${MARIADB_USER}                                   # grant user name (optional)
+      - MYSQL_PASSWORD=${MARIADB_PASSWORD}                           # grant user password (optional)
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# MONGODB
+#================================================================================================
+  mongodb:
+    restart: unless-stopped
+    build:
+      context: ./services/mongodb/${MONGO_VERSION}
+    container_name: nfndp_mongodb
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_MONGODB}:/etc/mongodb.conf
+      - ${DATA_MONGODB}/db:/data/db                                  # volume for data
+      - ${DATA_MONGODB}/configdb:/data/configdb                      # volume for config
+      - ${DATA_MONGODB}:/var/lib/mongodb
+      - ${LOG_MONGODB}:/var/log/mongodb/mongod.log                   # log mongodb
+    environment:
+      - MONGO_VERSION=${MONGO_VERSION}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_HOST=${MONGO_INITDB_ROOT_HOST}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# MYSQL
+#================================================================================================
+  mysql:
+    restart: unless-stopped
+    build:
+      context: ./services/mysql/${MYSQL_VERSION}
+    container_name: nfndp_mysql
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_MYSQL}:/etc/my.cnf                                  # my.cnf mysql
+      - ${CONFIG_MYSQL_DOCKER}:/etc/mysql/conf.d/domikado.cnf        # domikado.cnf mysql
+      - ${DATA_MYSQL}:/var/lib/mysql                                 # volume for data
+      - ${LOG_MYSQL}:/var/log/mysql                                  # log mysql
+    environment:
+      - MYSQL_VERSION=${MYSQL_VERSION}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}                   # root password
+      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}                           # grant user hostmask (optional)
+      - MYSQL_DATABASE=${MYSQL_DATABASE}                             # create database (optional)
+      - MYSQL_USER=${MYSQL_USER}                                     # grant user name (optional)
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}                             # grant user password (optional)
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# NODEEXPORTER
+#================================================================================================
+  nodeexporter:
+    image: prom/node-exporter:v0.15.2
+    container_name: nfndp_nodeexporter
+    user: root
+    privileged: true
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+    ports:
+      - "${NODEEXPORTER_PORT}:9100"
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# PERCONA
+#================================================================================================
+  percona:
+    restart: unless-stopped
+    build:
+      context: ./services/percona/${PERCONA_VERSION}
+    container_name: nfndp_percona
+    ports:
+      - "${PERCONA_PORT}:3306"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_MYSQL}:/etc/my.cnf                                  # my.cnf mysql
+      - ${CONFIG_MYSQL_DOCKER}:/etc/mysql/conf.d/domikado.cnf        # domikado.cnf mysql
+      - ${DATA_PERCONA}:/var/lib/mysql                               # volume for data
+      - ${LOG_PERCONA}:/var/log/mysql                                # log percona
+    environment:
+      - MYSQL_VERSION=${PERCONA_VERSION}
+      - MYSQL_ROOT_PASSWORD=${PERCONA_ROOT_PASSWORD}                 # root password
+      - MYSQL_ROOT_HOST=${PERCONA_ROOT_HOST}                         # grant user hostmask (optional)
+      - MYSQL_DATABASE=${PERCONA_DATABASE}                           # create database (optional)
+      - MYSQL_USER=${PERCONA_USER}                                   # grant user name (optional)
+      - MYSQL_PASSWORD=${PERCONA_PASSWORD}                           # grant user password (optional)
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# PGADMIN
+#================================================================================================
+  pgadmin:
+    restart: unless-stopped
+    build:
+      context: ./services/pgadmin/${PGADMIN_VERSION}
+    container_name: nfndp_pgadmin
+    ports:
+      - "${PGADMIN_PORT}:80"
+    depends_on:
+      - postgresql
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SESSION_PGADMIN}:/sessions                                 # volume for sessions
+      - ${DATA_PGADMIN}:/var/lib/pgadmin/storage
+    environment:
+      - PGADMIN_VERSION=${PGADMIN_VERSION}
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# PHPMYADMIN
+#================================================================================================
+  phpmyadmin:
+    restart: unless-stopped
+    build:
+      context: ./services/phpmyadmin/${PHPMYADMIN_VERSION}
+    container_name: nfndp_phpmyadmin
+    ports:
+      - "${PHPMYADMIN_PORT}:80"
+    depends_on:
+      - "${PMA_DB_ENGINE}"                                           # mysql, mariadb, percona
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SESSION_PHPMYADMIN}:/sessions                              # volume for sessions
+      - ${CONFIG_PHPMYADMIN}:/www/config.inc.php                     # volume for config phpmyadmin
+    environment:
+      - ALPINE_VERSION=${ALPINE_VERSION}
+      - PHP_VERSION=${PHP_VERSION}
+      - PHPMYADMIN_VERSION=${PHPMYADMIN_VERSION}
+      - PMA_ARBITRARY=${PMA_ARBITRARY}
+      - PMA_DB_ENGINE=${PMA_DB_ENGINE}
+      - PMA_HOST=${PMA_DB_ENGINE}
+      - MYSQL_HOST=${PMA_DB_ENGINE}
+      - MYSQL_USER=${PMA_USER}
+      - MYSQL_PASSWORD=${PMA_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${PMA_ROOT_PASSWORD}
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# PORTAINER
+#================================================================================================
+  portainer:
+    restart: unless-stopped
+    build:
+      context: ./services/portainer/${PORTAINER_VERSION}
+    container_name: nfndp_portainer
+    ports:
+      - "${PORTAINER_PORT}:9000"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA_PORTAINER}:/data                                      # volume for data
+    environment:
+      - PORTAINER_VERSION=${PORTAINER_VERSION}
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# POSTGRESQL
+#================================================================================================
+  postgresql:
+    restart: unless-stopped
+    build:
+      context: ./services/postgresql/${POSTGRES_VERSION}
+    container_name: nfndp_postgresql
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DATA_POSTGRESQL}:/var/lib/postgresql                       # volume for data
+    environment:
+      - POSTGRES_VERSION=${POSTGRES_VERSION}
+      - POSTGRES_ROOT_HOST=${POSTGRES_ROOT_HOST}                     # grant user hostmask (optional)
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}                       # create database (optional)
+      - POSTGRES_USER=${POSTGRES_USER}                               # grant user name (optional)
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}                       # grant user password (optional)
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# PROMETHEUS
+#================================================================================================
+  prometheus:
+    restart: unless-stopped
+    #image: prom/prometheus:v2.5.0
+    build:
+      context: ./services/prometheus/${PROMETHEUS_VERSION}
+    container_name: nfndp_prometheus
+    volumes:
+      - ./config/prometheus/alert.rules:/etc/prometheus/alert.rules
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./data/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention=200h'
+      - '--web.enable-lifecycle'
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# PUSHGATEWAY
+#================================================================================================
+  pushgateway:
+    restart: unless-stopped
+    image: prom/pushgateway
+    container_name: nfndp_pushgateway
+    ports:
+      - "${PUSHGATEWAY_PORT}:9091"
+    networks:
+      - nfndp-net
+
+#================================================================================================
+# REDIS
+#================================================================================================
+  redis:
+    restart: unless-stopped
+    build:
+      context: ./services/redis/${REDIS_VERSION}
+    container_name: nfndp_redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CACHE_REDIS}:/data                                         # volume for data
+    environment:
+      - REDIS_VERSION=${REDIS_VERSION}
+    networks:
+      - nfndp-net
