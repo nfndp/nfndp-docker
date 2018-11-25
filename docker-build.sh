@@ -7,13 +7,13 @@
 #  License    : MIT
 # -----------------------------------------------------------------------------
 
-TITLE="LARADOCK BUILDER SCRIPT"      # script name
-VER="1.4.4"                          # script version
-ENV="0"                              # container environment (0 = development, 1 = production)
-SKIP_BUILD="0"                       # (0 = with build process, 1 = bypass build process)
-REMOVE_CACHE="0"                     # (0 = using cache, 1 = no-cache)
-RECREATE_CONTAINER="0"               # (0 = disable recreate container, 1 = force recreate container)
-DAEMON_MODE="1"                      # (0 = disable daemon mode, 1 = running daemon mode / background)
+TITLE="K8S-CONTAINER BUILDER SCRIPT"      # script name
+VER="1.4.4"                               # script version
+ENV="0"                                   # container environment (0 = development, 1 = production)
+SKIP_BUILD="0"                            # (0 = with build process, 1 = bypass build process)
+REMOVE_CACHE="0"                          # (0 = using cache, 1 = no-cache)
+RECREATE_CONTAINER="0"                    # (0 = disable recreate container, 1 = force recreate container)
+DAEMON_MODE="1"                           # (0 = disable daemon mode, 1 = running daemon mode / background)
 
 USERNAME=`echo $USER`
 PATH_HOME=`echo $HOME`
@@ -154,8 +154,8 @@ PATH_HOME=`echo $HOME`
 ##  - Container "grafana"
 ##  - Container "portainer"
 
-CONTAINER_PRODUCTION="consul workspace grafana nginx adminer aerospike elasticsearch mariadb memcached mongodb mysql percona pgadmin phpfpm phpmyadmin portainer postgresql redis solr spark terraform"
-CONTAINER_DEVELOPMENT="consul adminer grafana portainer pgadmin alertmanager caddy cadvisor nodeexporter postgresql prometheus pushgateway redis"
+CONTAINER_PRODUCTION="adminer grafana portainer alertmanager caddy cadvisor nodeexporter prometheus pushgateway"
+CONTAINER_DEVELOPMENT="adminer grafana portainer alertmanager caddy cadvisor nodeexporter prometheus pushgateway mysql"
 
 export DOCKER_CLIENT_TIMEOUT=300
 export COMPOSE_HTTP_TIMEOUT=300
