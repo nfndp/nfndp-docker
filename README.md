@@ -115,7 +115,12 @@ receivers:
   git clone git@github.com:nfndp/nfndp-docker.git
   ```
 * Open your terminal then go to `nfndp-docker` folder
-* Type: `./run.sh` or `/bin/sh ./run.sh`
+* Type:
+  ```
+  make docker-run      # or 
+  ./docker-build.sh    # or 
+  /bin/sh ./run.sh
+  ```
 
 ## Running Container
 
