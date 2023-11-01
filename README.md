@@ -22,7 +22,7 @@ Docker container includes:
 
 ## Configuration
 Default all configuration:
-* `username: laradock`
+* `username: nfndp`
 * `password: password`
 
 ## Monitoring Tools
@@ -117,8 +117,8 @@ receivers:
 * Open your terminal then go to `nfndp-docker` folder
 * Type:
   ```
-  make docker-run      # or 
-  ./docker-build.sh    # or 
+  make docker-run      # or
+  ./docker-build.sh    # or
   /bin/sh ./run.sh
   ```
 
